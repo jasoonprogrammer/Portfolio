@@ -1,0 +1,204 @@
+{% extends "newapp/base.html" %}
+{% block content %}
+<script>
+	$(document).ready(function() {
+		$(".search").click(function(e) {
+			e.preventDefault();
+			ind = $(e.target).parents("tr").index()
+			$("#accCodeModal").data('row', ind);
+			$("#accCodeModal").modal("show");
+		})
+
+		$(".search-article").click(function(e) {
+			e.preventDefault();
+			ind = $(e.target).parents("tr").index();
+			$("#articleModal").data('row', ind);
+			$("#articleModal").modal("show");
+			console.log($("#articleModal").data("row"));
+		})
+
+		$(".select_code").click(function(e) {
+			acc_code_id = $(e.target).parents('tr').children("td").children('input[type=hidden]').val();
+			$.ajax({
+				type: "GET",
+				dataType: 'json',
+				url: "{% url 'get-acc-info' %}",
+				data: {
+					acc_id: acc_code_id
+				},
+				success: function(data) {
+					r = $("#myTable tbody tr").eq($("#accCodeModal").data('row'));
+					r.children("td").children('div').children("input[name=acc_code]").val(data['code']);
+					r.children("td").children("input[name=acc_title]").val(data['title']).prop("readonly", true);
+					r.children("input[name=acc_code_id]").val(data['acc_code_id'])
+					$("#accCodeModal").modal("hide");
+				}
+			})
+		})
+
+		$(".select_article").click(function(e) {
+			article_id = $(e.target).children("input[type=hidden]").val();
+			article_name = $(e.target).children().text().trim();
+			r = $("#myTable tbody tr").eq($("#articleModal").data('row'));
+			r.children("td").children('div').children("input[name=article]").val(article_name).prop("readonly", true);
+			r.children("input[name=article_id]").val(article_id);
+			$("#articleModal").modal("hide")
+
+
+		})
+
+		$(".acc_code").on("input", function(e) {
+			acc_no = $(e.target).val();
+
+			$.ajax({
+				type: "GET",
+				dataType: 'json',
+				url: "{% url 'get-acc-info-2' %}",
+				data: {
+					acc_code:acc_no,
+				},
+				success: function(data) {
+					if (data['code'] != false) {
+						ind = $(e.target).parents("tr").index()
+						r = $("#myTable tbody tr").eq(ind);
+						r.children("td").children("input[name=acc_title]").val(data['title']).prop("readonly", true);
+						r.children("input[name=acc_code_id]").val(data['acc_code_id'])
+					} else {
+						ind = $(e.target).parents("tr").index()
+						r = $("#myTable tbody tr").eq(ind);
+						r.children("td").children("input[name=acc_title]").val(data['title']);
+						r.children("td").children("input[name=acc_title]").val(data['title']).prop("readonly", false);
+						r.children("input[name=acc_code_id]").val("")
+						
+					}
+				}
+			});
+		})
+	})
+</script>
+<h1 class="text-center card-text">Set Account Codes</h1>
+<form method="POST">
+	{% csrf_token %}
+	<div style="">
+	<table align = "center" class="table table-bordered table-hover" id = "myTable" style='table-layout: fixed; width: 1400px;'>
+		<thead>
+			<th class="card-text" style="width: 10%;">Item No.</th>
+			<th class="card-text" style="width: 20%;">Description</th>
+			<th class="card-text" style="width: 20%;">Account Code</th>
+			<th class="card-text" style="width: 20%">Account Title</th>
+			<th class="card-text" style="width: 30%;">Article</th>
+			<th class="card-text" style="width: 15%">Classification</th>
+		</thead>
+		<tbody>
+			{% for item in items %}
+			<tr>
+				<input type="hidden" name="item_id" value="{{item.id}}">
+				<input type="hidden" name="acc_code_id">
+				<input type="hidden" name="article_id">
+				<td class="card-text">{{item.no}}</td>
+				<td class="card-text">{{item.desc}}</td>
+				<td>
+					<div class="input-group">
+						<input type="text" class="form-control acc_code" name="acc_code" required>
+						<button class="btn btn-primary search mb-0 mt-0"><span class="fa fa-search"></span></button>
+					</div>
+				</td>
+				<td><input type="text" class="form-control" name = 'acc_title' required></td>
+				<td>
+					<div class="input-group">
+						<input type="text" class="form-control" name = "article" required>
+						<button class="btn btn-primary search-article mb-0 mt-0"><span class="fa fa-search"></span></button>
+					</div>
+				</td>
+				<td>
+					<select name="classifications" id="classifications" class="form-control" required>
+						<option value="" selected>----------</option>
+						<option value="{{ics_class.id}}">{{ics_class}}</option>
+						<option value="{{ris_class.id}}">{{ris_class}}</option>
+						<option value="{{par_class.id}}">{{par_class}}</option>
+					</select>
+				</td>
+
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	</div>
+<div style="width: 100%;;">
+<button class="btn btn-success" style="float: right; margin-right: 60px; padding-left: 25px; padding-right: 25px;">Submit</button>
+</div>
+</form>
+
+<div class="modal" tabindex="-1" role="dialog" id="accCodeModal" data-row = ''>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Select Code</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container" style="height: 800px; overflow-y: scroll">
+        	<table class="table table-bordered table-hover">
+        		<thead>
+        			<tr>
+	        			<th style="width: 150px;">Account Code</th>
+	        			<th>Account Title</th>
+        			</tr>
+        		</thead>
+        		<tbody>
+        			{% for item in acc_codes %}
+        			<tr>
+        				<td style="cursor: pointer;" class="select_code"><input type="hidden" value='{{item.id}}'>{{item.code}}</td>
+        				<td style="cursor: pointer;" class="select_code">{{item.title}}</td>
+        			</tr>
+        			{% endfor %}
+        		</tbody>
+        	</table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal" tabindex="-1" role="dialog" id="articleModal" data-row = ''>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Select Article</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container" style="height: 800px; overflow-y: scroll">
+        	<table class="table table-bordered table-hover">
+        		<thead>
+        			<tr>
+        				<th class="text-center">Article</th>
+        			</tr>
+        		</thead>
+        		<tbody>
+        			{% for item in articles %}
+        			<tr>
+        				<td style="cursor: pointer;" class="select_article">
+        					<input type="hidden" value="{{item.id}}"><span>{{item}}</span>
+        				</td>
+        			</tr>
+        			{% endfor %}
+        		</tbody>
+        	</table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

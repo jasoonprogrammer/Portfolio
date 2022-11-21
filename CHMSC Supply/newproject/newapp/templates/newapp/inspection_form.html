@@ -1,0 +1,328 @@
+{% extends "newapp/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<script>
+  function del_row(e) {
+    $(e.target).parents("tr").remove();
+  }
+	function addReceipt(e) {
+    e.preventDefault();
+    $("#myModal").modal("show");
+  }
+
+  function addItem(e) {
+    e.preventDefault();
+    $("#itemModal").modal("show");
+    $("#id_add_item_no").val("");
+    $("#id_add_description").val("");
+    $("#id_add_unit").val("");
+    $("#id_add_qty").val("");
+    $("#id_add_cost").val("");
+    $("#id_total").val("");
+  }
+  function addItemRow(e) {
+   if ($("#id_add_item_no").val() != "" && $("#id_add_description").val() != "" && $("#id_add_unit").val() != "" && $("#id_add_qty").val() != "" && $("#id_add_cost").val() != "") {
+    item_no = $("#id_add_item_no").val();
+    desc = $("#id_add_description").val();
+    unit = $("#id_add_unit").val();
+    qty = $("#id_add_qty").val();
+    cost = $("#id_add_cost").val();
+    $.ajax({
+      type: "GET",
+      url: "{% url 'item-row' %}",
+      dataType: "html",
+      data: {
+        item_no: item_no,
+        desc: desc,
+        unit: unit,
+        qty: qty,
+        cost: cost
+      },
+      success: function(data) {
+        $("#item_table tbody").append(data);
+        $("#itemModal").modal("hide");
+      }
+    })
+   } else {
+    alert("Some fields are empty.");
+   }
+  }
+	function addReceiptRow(e) {
+		if ($("#id_add_receipt_type").val() != "" && $("#id_add_receipt_no").val() != "" && $("#id_add_receipt_date").val() != "") {
+      x1 = $("#id_add_receipt_no").val();
+      x2 = $("#id_add_receipt_type").val();
+      x3 = $("#id_add_receipt_date").val();
+        $.ajax({
+          type: "GET",
+          url: "{% url 'receipt_row' %}",
+          dataType: "html",
+          data: {
+            receipt_no: x1,
+            receipt_type: x2,
+            receipt_date: x3
+          },
+          success: function(data) {
+            $("#receipt_table tbody").append(data);
+            $("#id_add_receipt_no").val("");
+            $("#id_add_receipt_type").val("");
+            $("#id_add_receipt_date").val("");
+            $("#myModal").modal("hide");
+
+          }
+        })
+		} else {
+			alert("Some fields are empty.");
+		}
+	}
+	$(document).ready(function() {
+    $("#id_po_no").on("input", function(e) {
+      $.ajax({
+        type:"GET",
+        dataType: 'json',
+        url: "{% url 'ins-po' %}",
+        data: {
+          po_no: $(e.target).val()
+        },
+        success: function(data) {
+          if (data['supplier_name'] != undefined) {
+            $("#id_supplier_name").val(data['supplier_name']).prop("readonly", true)
+          } else {
+            $("#id_supplier_name").prop('readonly', false).val('')
+          }
+        }, error: function(data) {
+
+        }
+      })
+    })
+
+    $("#id_inspection_officer").val("{{request.user}}");
+    $("#ins_form").submit(function(e) {
+     if ($("input[name=item_no_list]").length < 1) {
+        alert("Please add items to list.")
+        e.preventDefault()
+     } else if ($("input[name=receipt_no_list]").length < 1) {
+        alert("Please add Invoice/DRs");
+        e.preventDefault()
+     }
+    })
+    $("#id_add_cost").on("input", function(e) {
+      if ($("#id_add_qty").val() != "") {
+        cost = $("#id_add_cost").val();
+        qty = $("#id_add_qty").val();
+        total = cost * qty;
+        total = total.toFixed(2);
+        $("#id_total").val(total);
+
+      }
+    });
+
+    $("#id_add_qty").on("input", function(e) {
+      if ($("#id_add_cost").val() != "") {
+        cost = $("#id_add_cost").val();
+        qty = $("#id_add_qty").val();
+        total = cost * qty;
+        total = total.toFixed(2);
+        $("#id_total").val(total);
+
+      }
+    });
+      $.ajax({
+      type: "GET",
+      dataType: "html",
+      url: "{% url 'none' %}",
+      success: function(data) {
+        $("#div_id_supplier_name").after(data);
+      }
+    })
+
+    $.ajax({
+      type: "GET",
+      dataType: "html",
+      url: "{% url 'none2' %}",
+      success: function(data) {
+        $("#div_id_date_received").before(data);
+      }
+    })
+		
+
+    $("#id_campus").on("input", function(e) {
+      $.ajax({
+        type:"GET",
+        url: "{% url 'generate_inspection_no' %}",
+        dataType: "html",
+        data: {
+          campus: $("#id_campus").val()
+        },
+        success: function(data) {
+          $("#id_inspection_no").val(data);
+        }
+      })
+    })
+    //new date
+        var datepicker = new Datepicker('#id_date_received');
+        var constrained = new Datepicker('#id_date_inspected', {
+         
+        min: (function(){
+          var initial_val = $('#id_date_received').val();
+          var date = new Date();
+          date.setDate(initial_val+13);
+          return date;
+        })()
+
+
+
+      });
+    //end new date
+	})
+
+  
+</script>
+
+
+<link rel="stylesheet" type="text/css" href="../static/css/datepicker.material.css">
+<link rel="stylesheet" type="text/css" href="../static/css/datepicker.minimal.css">
+<script type="text/javascript" src="../static/css/datepicker.js"></script>
+<style>
+.container{
+  background-color: lightgoldenrodyellow;
+  width: 50%;
+  margin-top: 30px;
+  border-radius: 10px;\
+  box-shadow: 10px 10px black;
+}  
+form{
+  box-shadow: 0px 0px 8px 5px rgba(0, 0, 0, .4);
+}
+
+.text-center{
+  font-family:georgia,garamond,serif;font-size:40px;font-style:italic;
+}
+label{
+  font-family:georgia,garamond,serif;font-size:1rem;font-style:italic;
+  font-weight: 1000;
+  margin-left: 30px;
+}
+.form-control{
+  width: 90%;
+  margin-left: 30px;
+}
+.form-text{
+  margin-left: 30px;
+}
+.form-check-input{
+  margin-left: 10px;
+}
+.form-check-label{
+  margin-left: 30px;
+}
+
+.main{
+  background-color: ghostwhite;
+}
+
+</style>
+<div class="container">
+	<form method="POST" id="ins_form"><br>
+		{% csrf_token %}
+		<h1 class="display text-center"> Inspection Form</h1>
+		<fieldset>
+      {% for form in form %}
+          {{ form.}}
+      {% endfor%}
+
+
+			{{form|crispy}}
+		</fieldset>
+		<button class="btn btn-success form-control">Submit</button>
+	</form>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="myModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Receipt</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="receipt_no">Receipt No.</label>
+          <input type="text" class="form-control" id="id_add_receipt_no">
+        </div>
+        <div class="form-group">
+          <label for="id_receipt_type">Receipt Type</label>
+          <select name="receipt_type" id="id_add_receipt_type" class="form-control">
+            <option value="" selected>-----</option>
+            {% for type in receipt_type %}
+            <option value="{{type.id}}">{{type}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="receipt_date">Receipt date</label>
+          <input type="date" class="form-control" id="id_add_receipt_date">
+        </div>
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="addReceiptRow(event)">Add Receipt</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="itemModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Item</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="id_add_item_no">Item No</label>
+          <input type="number" class="form-control" id="id_add_item_no">
+        </div>
+        <div class="form-group">
+          <label for="id_add_description">Description</label>
+          <input type="text" class="form-control" id="id_add_description">
+        </div>
+        <div class="form-group">
+          <label for="id_add_unit">Unit</label>
+          <select name="add_unit" id="id_add_unit" class="form-control">
+            <option value="">------</option>
+            {% for unit in units %}
+            <option value="{{unit.id}}">{{unit}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="id_add_qty">Quantity</label>
+          <input type="number" class="form-control" id="id_add_qty">
+        </div>
+        <div class="form-group">
+          <label for="id_add_cost">Cost</label>
+          <input type="number" class="form-control" id="id_add_cost">
+        </div>
+        <div class="form-group">
+          <label for="id_total">Total</label>
+          <input type="number" class="form-control" id="id_total" readonly>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="addItemRow(event);">Add Item</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+<script src="https://cdnout.com/jquery/"></script>
+<script src="https://cdnout.com/jquery-datetimepicker"></script>
+<link href="https://cdnout.com/jquery-datetimepicker/css/base.css" rel="stylesheet" media="all">

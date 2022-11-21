@@ -1,0 +1,62 @@
+{% extends "newapp/base.html" %}
+{% load my_tags %}
+{% block content %}
+<div class="container" style="width: 700px;">
+	<table class="table">
+		<tr>
+			<td>Property No.</td>
+			<td>{{ obj.property_no }}</td>
+		</tr>
+		<tr>
+			<td>Initially Issued To</td>
+			<td>{{ obj.remarks.name }}</td>
+		</tr>
+		<tr>
+			<td>Description</td>
+			<td>{{ obj.item.desc }}</td>
+		</tr>
+		<tr>
+			<td>Cost</td>
+			<td>{{ obj.item.cost|currency }}</td>
+		</tr>
+		<tr>
+			<td>PO No.</td>
+			<td>{{ obj.item.inspection.po.po_no }}</td>
+		</tr>
+		<tr>
+			<td>Inspection No.</td>
+			<td>{{ obj.item.inspection.ins_no }}</td>
+		</tr>
+		<tr>
+			<td>Requested By</td>
+			<td>{{ obj.item.inspection.po.requesting_end_user.name }}</td>
+		</tr>
+		<tr>
+			<td>Requisitioning Office</td>
+			<td>{{ obj.item.inspection.requisitioning_office.name }}</td>
+		</tr>
+		<tr>
+			<td>Equipment Status</td>
+			<td>{{ obj.equipment_status|blank }}</td>
+		</tr>
+		<tr>
+			<td>Transferred To</td>
+			<td>{{ obj.transferred_to_new_user.name|blank }}</td>
+		</tr>
+		<tr>
+			<td>Transfer Date</td>
+			<td>{{ obj.transferred_to_new_user.date|blank }}</td>
+		</tr>
+		<tr>
+			<td>Account Title</td>
+			<td>{{ obj.item.acc_code.title }}</td>
+		</tr>
+		<tr>
+			<td>Article</td>
+			<td>{{ obj.item.article.name }}</td>
+		</tr>
+	</table>
+
+	<a href="{% url 'scan' %}" class="btn btn-primary">Scan Another</a>
+</div>
+{% endblock content %}

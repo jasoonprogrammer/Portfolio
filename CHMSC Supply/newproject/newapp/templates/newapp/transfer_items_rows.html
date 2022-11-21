@@ -1,0 +1,14 @@
+
+<tbody id="transfer_list_body">
+	{% for obj in items %}
+	<tr>
+		<input type="hidden" value="{{obj.id}}">
+		<td class="text-center">{{obj.item.inspection.po.po_no}}</td>
+		<td class="text-center">{{obj.item.desc}}</td>
+		<td class="text-center">{{obj.onhand}}</td>
+		<td class="text-center"><input type="number" oninput = "qty_limiter(this, '{{obj.onhand}}')" class="form-control" style="margin: 0px; padding-top: 0px; padding-bottom: 0px; text-align: center;"></td>
+		<td class="text-center"><input type="text" class="form-control status" style="padding-top: 0px; padding-bottom: 0px;" ></td>
+		<td class="text-center">{{obj.property_no}}</td>
+	</tr>
+	{% endfor %}
+</tbody>

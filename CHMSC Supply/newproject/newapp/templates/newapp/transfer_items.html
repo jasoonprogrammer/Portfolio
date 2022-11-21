@@ -1,0 +1,283 @@
+{% extends "newapp/base.html" %}
+{% block content %}
+<style>
+  #item_list_body {
+    cursor: pointer;
+
+  }
+</style>
+<script>
+
+
+
+  function qty_limiter(e, qty) {
+      qty = parseInt(qty);
+      if ($(e).val() > qty) {
+        c_text = $(e).val() + "";
+        n_text = c_text.slice(0, -1)
+        $(e).val(n_text);
+      }
+    }
+
+  $(document).ready(function() {
+    $(".select_from").on("click", function(e) {
+      e.preventDefault();
+      $("#transfer_from").modal("show");
+
+    })
+
+    $(".select_person_from").on("click", function(e) {
+      $("#from_name").val($(this).text().trim());
+      from_person_id = $(this).siblings(".hidden_id").val();
+      $("#transfer_from").modal("hide");
+      $.ajax({
+        type: "GET",
+        dataType: "html",
+        url: "{% url 'transfer-items' %}",
+        data: {
+          from_id: from_person_id
+        },
+        success: function(data) {
+          $("#transfer_list_body").replaceWith(data);
+        }
+      })
+    })
+
+    $(".select_to").on("click", function(e) {
+      e.preventDefault();
+      $("#transfer_to").modal("show");
+    })
+
+    $(".select_person_to").on("click", function(e) {
+      $("#to_name").val($(this).text().trim());
+      $("#hidden_to").val($(this).siblings(".hidden_id").val());
+      $("#transfer_to").modal("hide");
+    })
+
+    $(".add_item").on("click", function(e) {
+      e.preventDefault();
+      $("#item_list").modal("show");
+    })
+
+    $("#to_name").on("input", function(e) {
+      name = $(this).val();
+      $.ajax({
+        type: "GET",
+        url: "{% url 'name-transfer-autocheck' %}",
+        dataType: "json",
+        data: {
+          name: name
+        },
+        success: function(data) {
+          if (data['existing'] == true) {
+            $("input:hidden#hidden_to").val(data['id'])
+          } else {
+            $("input:hidden#hidden_to").val("")
+          }
+        }
+      })
+    })
+
+   $("#transfer_form").on("submit", function(e) {
+    if (confirm("Are you sure you want to transfer these items?")) {
+
+    } else {
+      e.preventDefault();
+    }
+   })
+
+    $("#confirm-transfer").on("click", function(e) {
+      arr = {}
+      rows = $("#transfer_list_body").children("tr");
+      rows.map(function() {
+        transfer_qty = parseInt($(this).find("td input").val());
+        im_id = parseInt($(this).find("input:hidden").val())
+        status = $(this).find("input.status").val()
+        console.log(status)
+        if (transfer_qty > 0) {
+          arr[im_id] = [transfer_qty, status]
+        }
+      })
+
+      strfy = JSON.stringify(arr)
+      $.ajax({
+        type: "GET",
+        dataType: "html",
+        url: "{% url 'confirm-transfer' %}",
+        data: {
+          json_arr: strfy
+        },
+        success: function(data) {
+          console.log(data);
+          $("#confirmed_transfer_body").replaceWith(data);
+          $("#item_list").modal("hide");
+        }
+      })
+    })
+
+  })
+</script>
+<form method="POST" id="transfer_form">
+{% csrf_token %}
+<div class="container" style="margin-top: 15px;">
+	<table class="table table-bordered table-light" style="width: 850px;" align="center">
+		<tr>
+      <input type="hidden" id="hidden_from" value="">
+			<td style="line-height: 25px; height: 25px; text-align: right; margin-top: auto; margin-bottom:auto;">From: </td>
+			<td><input class="form-control" type="text" name="transfer_from" id="from_name" required></td>
+			<td class="select_from" style="width: 10%;"><button class="btn btn-info m-0"><span class="fa fa-search"></span></button></td>
+		</tr>
+		<tr>
+      <input type="hidden" id="hidden_to" value = "" name="hidden_to">
+			<td style="line-height: 25px; height: 25px; text-align: right; margin-top: auto; margin-bottom:auto;">To: </td>
+			<td><input class="form-control" type="text" name="transfer_to" id="to_name" required></td>
+			<td class="select_to"><button class="btn btn-info m-0"><span class="fa fa-search"></span></button></td>
+		</tr>
+    <tr>
+      <td class="designation_to text-right">Designation:</td>
+      <td><input type="text" class="form-control" name="to_designation"></td>
+      <td></td>
+      
+    </tr>
+		<tr>
+
+			<td colspan="3" class="text-center">
+        <h5>Items</h5>
+      <button class="btn btn-success add_item"><span style="position: relative;" class="fa fa-plus"></span></button>
+      <div class="tableFixHead" style="overflow-x: auto; overflow-y:auto; height: 255px;">
+       <table class="table table-bordered">
+          <thead>
+            <th>Qty</th>
+            <th style="width: 55%;">Desc</th>
+            <th>Status</th>
+            <th>Property No.</th>
+          </thead>
+          <tbody id="confirmed_transfer_body">
+            
+          </tbody>
+      </table>
+      </div>
+    </td>
+     
+		</tr>
+    <tr>
+      <td colspan="3">
+          <button class="btn btn-success" style="float: right;" id="cofirm-transfer-2">Confirm Transfer</button>
+      </td>
+    </tr>
+    
+	</table>
+
+</div>
+</form>
+
+<div class="modal" tabindex="-1" role="dialog" id="transfer_from" data-row = ''>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Select Person</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container" style="height: 800px; overflow-y: scroll">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th class="text-center">Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for person in persons %}
+              <tr>
+                <input type="hidden" class="hidden_id" value = "{{person.id}}">
+                <td style="cursor: pointer;" class="select_person_from">
+                  {{person.name}}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="transfer_to" data-row = ''>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Select Person</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container" style="height: 800px; overflow-y: scroll">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th class="text-center">Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for person in persons %}
+              <tr>
+                <input type="hidden" class="hidden_id" value = "{{person.id}}">
+                <td style="cursor: pointer;" class="select_person_to">
+                  {{person.name}}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="item_list" data-row = ''>
+  <div class="modal-dialog modal-lg" role="document" style="max-width: 1200px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Select Item</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container" style="height: 400px; overflow-y: scroll">
+          <table class="table table-bordered table-hover tableFixHead" id="item_table">
+            <thead>
+              <tr>
+                <th class="text-center" style="padding-top: 3px; padding-bottom: 3px;width: 150px;">PO No.</th>
+                <th class="text-center" style="padding-top: 3px; padding-bottom: 3px;width: 600px;">Desc</th>
+                <th class="text-center" style="padding-top: 3px; padding-bottom: 3px;width: 100px">Onhand</th>
+                <th class="text-center" style="padding-top: 3px; padding-bottom: 3px;width: 70px">Qty</th>
+                <th class="text-center" style="padding-top: 3px; padding-bottom: 3px; width: 120px">Status</th>
+                <th class="text-center" style="padding-top: 3px; padding-bottom: 3px;width: 220px;">Property No.</th>
+              </tr>
+            </thead>
+            <tbody id="transfer_list_body">
+             
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button class="btn btn-primary" id="confirm-transfer">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

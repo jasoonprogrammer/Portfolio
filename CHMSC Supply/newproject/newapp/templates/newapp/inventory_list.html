@@ -1,0 +1,169 @@
+{% extends "newapp/base.html" %} 
+{% load my_tags %}
+{% load crispy_forms_tags %}
+{% block content %}
+<script>
+	$(document).ready(function() {
+		$("#filter_button").on('click', function(e) {
+			$("#filterModal").modal("show");
+		})
+
+		$("#print_button").on('click', function(e) {
+			ids = $.map($("td input.checkbox_row:checked"), function(item, i) {
+				return $(item).val();
+			});
+
+			console.log(ids)
+			$.ajax({
+				type: "GET",
+				url: "{% url 'print-inv' %}",
+				data: {
+					checked: ids
+				},
+				success: function(data) {
+
+				}
+			})
+		})
+		$("#checkall").on("click", function(e) {
+			if ($(this).is(":checked")) {
+				$(".checkbox_row").prop("checked", true);
+			} else {
+				$(".checkbox_row").prop("checked", false);
+			}
+		})
+
+		$("#filter_form").on("submit", function(e) {
+			e.preventDefault();
+			ids = []
+			checked_rows = $("td input.checkbox_row:checked")
+			$("td input.checkbox_row:checked").each(function(i) {
+				ids.push($(checked_rows[i]).val())
+			})
+			ser_data = $(this).serializeArray();
+			ser_data.push({name: "checked", value: ids})
+			$.ajax({
+				type:"POST",
+				url: "{% url 'inventory-list' %}",
+				data: ser_data,
+				success: function(data) {
+					$("#myTable").replaceWith(data);
+					$("#filterModal").modal("hide");
+				}
+			})
+		})
+	})
+</script>
+<div class="container">
+	<h1 class="text-center mt-2 mb-1">Inventory List</h1>
+	<button class="btn btn-primary" id="filter_button"><span class="fa fa-filter"></span> Filter</button>
+	<button class="btn btn-warning" id="print_button"><span class="fa fa-print"> Print</span></button>
+	<div style="overflow-x: auto; overflow-y:auto; height: 500px;" class="container tableFixHead">
+		<table class="table table-bordered text-center" id="myTable" style="table-layout: fixed;">
+			<thead>
+				<tr>
+					<th></th>
+					<th nowrap style="width: 150px;">PO No.</th>
+					<th nowrap style="width: 180px;">Recorded</th>
+					<th nowrap style="width: 250px">Article</th>
+					<th nowrap style="width: 300px;">Description</th>
+					<th nowrap style="width: 230px;">Property Number</th>
+					<th style="width: 120px;">Unit of Measure</th>
+					<th nowrap style="width: 200px;">Unit Value</th>
+					<th style="width: 100px; word-wrap: break-word;">Balance/ Card/Qty</th>
+					<th style="width: 100px; word-wrap: break-word;">Onhand/Count /Qty</th>
+					<th style="width: 100px; word-wrap: break-word;">Shortage/Quantity</th>
+					<th nowrap style="width: 200px; word-wrap: break-word;" class="text-center">Overage Value</th>
+					<th nowrap style="width: 200px;">Remarks</th>
+					<th nowrap style="width: 250px;">Supplier</th>
+					<th nowrap style="width: 250px;">End User's Designation</th>
+					<th nowrap style="width: 150px;">Property Tags</th>
+					<th nowrap style="width: 250px;">Purpose</th>
+					<th nowrap style="width: 180px;">Returned (WMR)</th>
+					<th nowrap style="width: 250px;">Transferred From</th>
+					<th nowrap style="width: 150px;">Unit Count</th>
+					<th nowrap style="width: 160px;">Date Transferred</th>
+					<th nowrap style="width: 180px;">Equipment Status</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td colspan="22" style="text-align: left"><input type="checkbox" id="checkall"> Checkall</td>
+				</tr>
+				{% for obj in objs %}
+				<tr class="check_row" style="cursor: pointer">
+					<td><input type="checkbox" name = "checked" value="{{obj.id}}" class="checkbox_row"></td>
+					{% if obj.item.inspection.po.po_no %}
+					<td>{{ obj.item.inspection.po.po_no }}</td>
+					{% else %}
+					<td>{{ obj.item.po_no }}</td>
+					{% endif %}
+					<td>{{ obj.date|date:"M d, Y" }}</td>
+					<td>{{ obj.item.article.name }}</td>
+					<td>{{ obj.item.desc }}</td>
+					<td title="Display Timeline"><a href="{% url 'property-timeline' obj.id %}">{{ obj.property_no }}</a></td>
+					<td>{{ obj.item.unit.name }}</td>
+					<td>{{ obj.item.cost|currency }}</td>
+					<td>{{ obj.balance }}</td>
+					<td>{{ obj.onhand }}</td>
+					<td>{{ obj.shortage }}</td>
+					<td class="text-right">{{ obj.overage|currency }}</td>
+					<td>{{ obj.remarks.name }}</td>
+					<td>{{ obj.item.inspection.po.supplier.name }}</td>
+					<td>{{ obj.designation|blank }}</td>
+					<td><a target = "_blank" href="{% url 'sticker' obj.id %}">Property Tag</a></td>
+					<td>{{ obj.purpose|blank }}</td>
+					<td>{{ obj.wmr|blank }}</td>
+					<td>{{ obj.transferred_to_new_user.name|blank }}</td>
+					<td>{{ obj.transferred_to_new_user.count|blank }}</td>
+					<td>{{ obj.transferred_to_new_user.date|blank }}</td>
+					<td>{{ obj.equipment_status|blank  }}</td>
+
+				</tr>
+				{% endfor %}
+
+				<script>
+					$(".check_row").children().on('click', function(e) {
+						if ($(this).siblings().children("input").prop("checked")) {
+							$(this).siblings().children("input").prop("checked", false);
+						} else {
+							$(this).parents(".check_row")
+							$(this).siblings().children("input").prop("checked", true)
+						}
+						
+					})
+				</script>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<form method="POST" id="filter_form">
+	{% csrf_token %}
+	<div class="modal" tabindex="-1" role="dialog" id="filterModal" data-row = ''>
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Filter Purchase Order</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        <div class="container" style="height: 800px; overflow-y: scroll">
+	        	<form method="POST">
+	        		{% csrf_token %}
+	        		{{form|crispy}}
+	        </div>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+	      	<button class="btn btn-primary" id="filter_submit">Filter</button>
+	        </form>
+
+	      </div>
+	    </div>
+	  </div>
+	</div>
+</form>
+{% endblock content %}

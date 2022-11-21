@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% if title %} {{ title }} {% endif %}</title>
+	<script src="js/jquery-3.5.1.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<style>
+
+		.hand-cursor {
+			cursor: pointer;
+		}
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+		/* display: none; <- Crashes Chrome on hover */
+		-webkit-appearance: none;
+		margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+		}
+
+		table {
+			font-family: Verdana;
+		}
+
+		.table thead tr{
+			background-color: #03fca9;
+		}
+
+		.table tbody tr:nth-child(even) {
+			background-color: #ccdee3;
+		}
+		.table tbody tr:nth-child(odd) {
+			background-color: #e6eef0;
+		}
+
+		.my-table {
+			border-collapse: collapse;
+			margin: 25px 0;
+			min-width: 400px;
+		}
+
+		.tableFixHead thead th {
+			position: sticky;
+			top: 0;
+		}
+	
+
+		table  { border-collapse: collapse; width: 100%; }
+		th, td { padding: 8px 16px; }
+		th     { background:#03fca9; }
+
+
+
+		.dropdown:hover .dropdown-menu{
+        display: block;
+    }
+    .dropdown-menu{
+        margin-top: 0;
+    }
+
+		
+    ul{
+        padding: 0;
+        list-style: none;
+        background: seagreen;
+        font-size: 20px;
+    }
+
+
+
+   li:hover,
+	 li:focus-within {
+  background: orangered;
+  cursor: pointer;
+	}
+	 li:focus-within a {
+  outline: none;
+	}
+    
+
+
+    }
+
+    .navbar .dropdown-item{
+    	position: relative;
+    	font-size: 20%;
+    }
+
+    .navbar .dropdown-item ul li a{
+    	background: #3333;
+    	padding: 10px;
+    }
+
+ 
+
+
+	
+	</style>
+
+
+
+
+
+
+	<script>
+	
+
+
+		Date.prototype.addDays = function(days) {
+		    var date = new Date(this.valueOf());
+		    date.setDate(date.getDate() + days);
+		    return date;
+		}
+
+		function pad(str, size) {
+			x_str = str;
+			for (var i = x_str.length; i < size; i++) {
+				x_str = "0" + x_str;
+			}
+			return x_str;
+		}
+	</script>
+	{% load static %}
+
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+	<script src="{% static 'bootstrap/jquery.js' %}"></script>
+	<script src="{% static 'bootstrap/bootstrap.min.js' %}"></script>
+	<script src="{% static 'bootstrap/bootstrap.bundle.min.js' %}"></script>
+	<link rel="stylesheet" type="text/css" href="{% static 'css/mdb.min.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+	<link rel="stylesheet" href="{% static 'bootstrap/bootstrap.min.css' %}">
+	
+	
+	{% load crispy_forms_tags %}
+</head>
+<body>
+	
+	
+
+	
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+	  <a class="navbar-brand" href="#"></a>
+	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+	    <span class="navbar-toggler-icon"></span>
+	  </button>
+	  
+
+	  <div class="collapse navbar-collapse" id="navbarSupportedContent" style="background-color:seagreen;">
+	    <ul class="navbar-nav mr-auto">
+	      <li class="nav-item">
+	        <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only"></span></a>
+	      </li>
+	     
+	      <li class="nav-item dropdown" style="border-left: 2px solid black;  ">
+	        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	          Purchase Order
+	        </a>
+	        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+	          <a class="dropdown-item" href="{% url 'po_monitoring' %}">Form</a>
+	          <a class="dropdown-item" href="{% url 'po-list' %}">List</a>	       
+	        </div>
+	      </li>
+	     
+
+	      <li class="nav-item dropdown" style="border-left: 2px solid black;">
+	        <a class="nav-link dropdown-toggle" href="#" id="inspectionDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="flase">
+	          Inspection
+	        </a>
+	        <div class="dropdown-menu" aria-labelledby="inspectionDropdown">
+	          <a class="dropdown-item" href="{% url 'inspection_form' %}">Form</a>
+	          <a class="dropdown-item" href="{% url 'inspection-list' %}">List</a>
+	        </div>
+	      </li>
+
+	      <li class="nav-item" style="border-left: 2px solid black;">
+	        <a class="nav-link" href="{% url 'acc_code_list' %}">Set Account Codes</a>
+	      </li>
+
+	      <li class="nav-item dropdown" style="border-left: 2px solid black;">
+	      	<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	          Inventory Monitoring
+	        </a>
+	        <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
+	          <a class="dropdown-item" href="{% url 'inventory-monitoring-form' %}">Form</a>
+	          <a class="dropdown-item" href="{% url 'inventory-list' %}">List</a>
+	        </div>
+	      </li>
+	      
+	       <li class="nav-item" style="border-left: 2px solid black;">
+	        <a class="nav-link" href="{% url 'transfer-items' %}">Transfer Items</a>
+	      </li>
+	      <li class="nav-item dropdown" style="border-left: 2px solid black">
+	        <a class="nav-link dropdown-toggle" href="#" id="reportDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	        	Reports
+	        </a>
+	        <div class="dropdown-menu" aria-labelledby="reportDropdown">
+	          <a class="dropdown-item" href="{% url 'par_list' %}">PAR</a>
+	          <a class="dropdown-item" href="{% url 'inspection-list' %}">ICS</a>
+	        </div>
+	      </li>
+	      <li class="nav-item" style="border-left: 2px solid black; border-left: 2px solid black;">
+	      	<a href="{% url 'scan' %}" class="nav-link">Scan</a>
+	      </li>
+	      <li class="nav-item">
+	        <a class="nav-link"  href="{% url 'accounting' %}" style="border-left: 2px solid black; border-left height: 100%;">Accounting<span class="sr-only" ></span></a>
+	      </li>
+	    </ul>
+	    {% if user.is_authenticated %}
+	    <ul class="nav navbar-nav navbar-right">
+	    	<li class="nav-item">
+	    		<a href="{% url 'logout' %}" class="nav-link navbar-right" style="border-left: 2px solid black; color: white;">Logout</a>
+	    	</li>
+	    </ul>
+	    {% else %}
+	    <ul class="nav navbar-nav navbar-right">
+	    	<li class="nav-item">
+	    		<a href="{% url 'login' %}" class="nav-link navbar-right">Login</a>
+	    	</li>
+	    </ul>
+		{% endif %}
+
+	  </div>
+	</nav>
+	{% for message in messages %}
+		<div class="alert alert-{{message.tags}}">{{message}}</div>
+	{% endfor %}
+
+	<div class="main">
+	{% block content %}
+	{% endblock content %}
+	</div>
+	
+	
+	
+</body>
+</html>

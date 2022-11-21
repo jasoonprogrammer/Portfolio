@@ -1,0 +1,160 @@
+{% extends "newapp/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+<script>
+	
+	function copyValue(e) {
+		x1 = 'balance';
+		x2 = 'onhand';
+		if ($(e.target).attr("data-custom") == x1) {
+			p = $(e.target).parents("tr");
+			p.children("td").children("input[data-custom=" + x2 + "]").val($(e.target).val());
+		} else if ($(e.target).attr("data-custom") == x2) {
+			p = $(e.target).parents("tr");
+			p.children("td").children("input[data-custom=" + x1 + "]").val($(e.target).val());
+		}
+		overage = $(e.target).parents("tr").children("td").children("input[name=cost]").val() * $(e.target).val();
+		$(e.target).parents("tr").children("td").children("input[name=overage]").val(overage.toFixed(2)).prop("readonly", true);
+	}
+
+	function unlock(e) {
+		$(e.target).parents("tr").children("td").children("input[disabled]").prop("disabled", false);
+		$.ajax({
+			type: "GET",
+			url: "{% url 'property-tag' %}",
+			dataType: 'json',
+			data: {
+				id: $(e.target).val(),
+				current_series: null
+			},
+			success: function(data) {
+				p = $(e.target).parents("tr");
+				p.children("td").children("input[name=article]").val(data['article']).prop("readonly", true)
+				p.children("td").children("input[name=unit]").prop("readonly", true).val(data['unit']);
+				p.children("td").children("input[name=cost]").prop("readonly", true).val(parseFloat(data['cost']).toFixed(2));
+					str = $("input[name=acc_code][value=" + data['acc_id'] + "]");
+					// if ($(str).length <= 0) {
+					// 	p.children("input[name=acc_code]").val(data['acc_id']);
+					// 	p.children("input[data-custom=series]").val(data['acc_series']);
+					// } else {
+					// 	p.children("input[name=acc_code]").val(data['acc_id']);
+					// 	if (isNaN(parseInt($("input[data-custom=series]").eq(-2).val()))) {
+					// 		p.children("input[data-custom=series]").val(data['acc_series']);
+					// 	} else {
+					// 		last_s = parseInt($("input[name=series]").eq(-2).val()) + 1;
+					// 		p.children("input[data-custom=series]").val(last_s);
+					// 	}
+					// }
+					// p.children("input[name=acc_code]").attr("data-code", data['acc_code']);
+					p.children("td").children('input[name=supplier]').prop('readonly', true).val(data['supplier']);
+					// property_no = data['acc_code'] + "-" + pad($(p).children("input[data-custom=series]").val(), 3)
+					// + "-" + data['date'] + data['school'];
+					// p.children("td").children("input[name=property_no]").val(property_no).prop("readonly", true)
+			}
+		})
+	}
+
+	$(document).ready(function() {
+		$("#myTable").children("thead").children("tr").children("th").addClass("text-center");
+
+		$("#new_row").on('click', function(e) {
+			e.preventDefault();
+			po_no = prompt("Please enter PO No.", $("#cached_po_no").val());
+			l = $("#myTable tbody tr").length;
+			$.ajax({
+				type: "GET",
+				dataType: 'html',
+				data: {
+					po_no: po_no,
+					no: l
+				},
+				url: '{% url "monitoring-row-form" %}',
+				success: function(data) {
+					$("#cached_po_no").val(po_no)
+					$("#myTable tbody").append(data);
+				},
+				error: function(data) {
+					alert("PO No. not found")
+				}
+			})
+		})
+
+		$("#del_row").on('click', function(e) {
+			e.preventDefault();
+			if (confirm("Are you sure to delete the last row?")) {
+				$("tbody tr").last().remove();
+			}
+			
+		})
+	})
+</script>
+<input type="hidden" id="cached_po_no" value = ''>
+<div class="container">
+	<form method="POST">
+		{% csrf_token %}
+	<h1 class="card-text text-center">Inventory Monitoring Form</h1>
+	<div style="overflow-x: auto; height: 600px;" class="container">
+		<table class="table table-bordered" id="myTable" style="table-layout: fixed;">
+			<thead>
+				<tr>
+					<th nowrap style="width: 150px;">PO No.</th>
+					<th nowrap style="width: 200px;">Date</th>
+					<th nowrap style="width: 250px">Article</th>
+					<th nowrap style="width: 300px;">Description</th>
+					<!-- <th nowrap style="width: 230px;">Property Number</th> -->
+					<th style="width: 120px;">Unit of Measure</th>
+					<th nowrap style="width: 200px;">Unit Value</th>
+					<th style="width: 100px; word-wrap: break-word;">Balance/ Card/Qty</th>
+					<th style="width: 100px; word-wrap: break-word;">Onhand/Count /Qty</th>
+					<th style="width: 100px; word-wrap: break-word;">Shortage/Quantity</th>
+					<th nowrap style="width: 200px; word-wrap: break-word;" class="text-center">Overage Value</th>
+					<th nowrap style="width: 200px;">Remarks</th>
+					<th nowrap style="width: 300px;">Campus</th>
+					<th nowrap style="width: 250px;">Supplier</th>
+					<th nowrap style="width: 250px;">End User's Designation</th>
+					<th nowrap style="width: 150px;">Property Tags</th>
+					<th nowrap style="width: 250px;">Purpose</th>
+					<th nowrap style="width: 180px;">Returned (WMR)</th>
+					<th nowrap style="width: 300px;">Transferred to New End User</th>
+					<th nowrap style="width: 150px; word-wrap: break-word;">Unit Count</th>
+					<th nowrap style="width: 160px;">Date Transferred</th>
+					<th nowrap style="width: 165px; word-wrap: break-word;">Equipment Status</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{ formset.management_form }}
+				{% for form in formset %}
+					{{form}}
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<div class="mt-2">
+		<button class="btn btn-primary" id="new_row"><span class="fa fa-plus-square"></span> Add Row</button>
+		<button class="btn btn-danger" id="del_row"><span class="fa fa-times"></span> Delete Row</button>
+		<button class="btn btn-success" style="width: 300px;">Submit</button>
+		<a class="btn btn-default" href="{% url 'inventory-list' %}"><span class="fa fa-undo"></span> Back</a>
+	</div>
+</form>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="filterModal" data-row = ''>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Select Article</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {{filter_form|crispy}}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

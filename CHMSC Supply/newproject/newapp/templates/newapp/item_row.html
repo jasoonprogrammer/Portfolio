@@ -1,0 +1,9 @@
+<tr>
+	<td><input name="item_no_list" type="text" readonly class="form-control" value="{{item_no}}"></td>
+	<td><input name="item_desc_list" type="text" readonly class="form-control" value="{{desc}}"></td>
+	<td><input name="item_unit_id_list" type="hidden" value="{{unit.id}}"><input type="text" readonly class="form-control" value="{{unit}}"></td>
+	<td><input name="item_qty_list" type="number" readonly class="form-control text-right" value="{{qty}}"></td>
+	<td><input name = "item_cost_list" type="number" readonly class="form-control text-right" value="{{cost}}"></td>
+	<td><input type="text" readonly class="form-control text-right" value="{{total}}"></td>
+	<td><button class="btn btn-danger form-control mt-0 mb-0" onclick="del_row(event);"><span class="fa fa-trash"></span></button></td>
+</tr>

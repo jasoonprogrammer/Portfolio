@@ -1,0 +1,29 @@
+{
+	"delay": 5,
+	"email": "amsacademyaxie@gmail.com",
+	"filters": [
+		{
+			"filter_name": "nimo_f2",
+			"speed": 57,
+			"hp": 42,
+			"class": "aquatic",
+			"breedCount": 0,
+			"d.parts": [
+				"horn-shoal-star",
+				"mouth-risky-fish",
+				"back-goldfish",
+				"tail-koi"
+			],
+			"r1.parts": [
+				"horn-shoal-star",
+				"mouth-risky-fish",
+				"back-goldfish",
+				"tail-koi"
+			],
+			"r2.parts": [
+			],
+			"price_eth": 0.075
+		}
+
+	]
+}

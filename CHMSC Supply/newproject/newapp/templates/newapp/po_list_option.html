@@ -1,0 +1,6 @@
+<select class="form-control text-center" name="select_user" id="select_user" data-po="{{ po.id }}">
+	<option value="">----------</option>
+	{% for user in users %}
+	<option value="{{user.id}}">{{ user }}</option>
+	{% endfor %}
+</select>

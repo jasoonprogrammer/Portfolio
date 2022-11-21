@@ -1,0 +1,6 @@
+<tr>
+	<td><input class="form-control" type="text" readonly name="receipt_no_list" value = '{{receipt_no}}'></td>
+	<td><input type="hidden" name="type_id_list" value = "{{receipt_type.id}}"><input type="text" readonly name="receipt_type_list" value="{{receipt_type}}" class="form-control"></td>
+	<td><input class="form-control" type="date" name="receipt_date_list" value="{{receipt_date}}" readonly></td>
+	<td><button class="btn btn-danger mt-0 mb-0" onclick="del_row(event)"><span class="fa fa-trash"></span></button></td>
+</tr>

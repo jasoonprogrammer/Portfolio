@@ -1,0 +1,14 @@
+{% extends 'newapp/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container">
+	<form method = "POST">
+		{% csrf_token %}
+		<h2 class="text-center">Inspection No. {{ ins.ins_no }}</h2>
+		<h2 class="text-center card-text">Update</h2>
+		{{form|crispy}}
+		
+		<button class="btn btn-success">Update</button>
+	</form>
+</div>
+{% endblock content %}

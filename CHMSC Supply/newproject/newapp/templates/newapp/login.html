@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<style>
+		.login-form {
+			width: 430px;
+			height: 450px;
+			background: #000;
+			color: #fff;
+			top: 55%;
+			left: 50%;
+			position: absolute;
+			transform: translate(-50%, -50%);
+			box-sizing: border-box;
+			padding: 80px 40px;
+			font-family: Verdana;
+			border-radius: 10px;
+			box-shadow: 0px 0px 8px 5px rgba(0, 0, 0, .4);
+			
+
+		}
+
+		.logo {
+			border-radius: 55%;
+			height: 150px;
+			top: -80px;
+			position: absolute;
+			left: calc(50% - 80px);
+			background-color: forestgreen;
+			box-shadow: 0px 0px 8px 5px rgba(0, 0, 0, .4);
+		}
+
+		h1 {
+			text-align: center;
+			margin: 0;
+			font-size: 15px;
+			color: lightgreen;
+		}
+
+		#id_username, #id_password {
+			border: none;
+			border-bottom: 1px solid #fff;
+			background: transparent;
+			outline: none;
+			margin-bottom: 20px;
+			color: #fff;
+			font-size: 18px;
+		}
+		input {
+			width: 100%;
+		}
+
+		input[type="submit"] {
+			border: none;
+			outline: none;
+			height: 30px;
+			color: #000;
+			font-family: Consolas;
+			text-transform: uppercase;
+			background-color: #42f5d4;
+			cursor: pointer;
+			font-size: 20px;
+		}
+		body{
+			background-attachment: fixed;
+			background-repeat: no-repeat;
+			background-position: center;
+			background-size: 100% 100%;
+		}
+
+	</style>
+</head>
+<body background="{%static 'bg1.jpg'%}" class="bg">
+
+	<div class="login-form">
+		<img src="{% static 'logo.png' %}" alt="Chmsc Logo" class="logo">
+		<h1>Supply and Property Management Office</h1>
+		<h1>System Login</h1>
+		<br>
+		<form method="POST">
+			{% csrf_token %}
+			<p>Username</p>
+			<input type="text" name="username" id='id_username' placeholder="Enter Username">
+			<p>Password</p>
+			<input type="password" name="password" id="id_password" placeholder = "Enter Password"><br><br>
+			<input type="submit" value="Login">
+
+		</form>
+	</div>
+</body>
+</html>

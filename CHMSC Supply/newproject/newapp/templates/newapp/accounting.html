@@ -1,0 +1,101 @@
+{% extends "newapp/base.html" %}
+{% block content %}
+<script>
+	d = new Date();
+	yyyy = d.getFullYear()
+	mm = String(d.getMonth() + 1).padStart(2, "0")
+	dd = String(d.getDate()).padStart(2, "0")
+	d_str = yyyy + "-" + mm + "-" + dd
+	$(document).ready(function() {
+		$("#selected_date").val(d_str);
+
+		$(".code-list").on("click", function(e) {
+			sib = $(this).children(".account-boxes").first()
+			if ($(sib).is(":checked")) {
+				sib.prop("checked", false)
+			} else {
+				sib.prop("checked", true)
+			}
+		})
+
+		$("#checkall").on("click", function(e) {
+			if ($(this).is(":checked")) {
+				$(".account-boxes").prop("checked", true);
+			} else {
+				$(".account-boxes").prop("checked", false);
+			}
+		})
+
+		$(".code-list-checkall").on("click", function(e) {
+			console.log($("#checkall").is(":checked"))
+			if ($("#checkall").is(":checked")) {
+				$("#checkall").prop("checked", false);
+				$(".account-boxes").prop("checked", false);
+			} else {
+				$("#checkall").prop("checked", true);
+				$(".account-boxes").prop("checked", true);
+			}
+		})
+
+		$("#print_until").on("click", function(e) {
+			e.preventDefault();
+			if ($("#selected_date").val() == "") {
+				alert("Please Select a Date");
+			} else {
+				var csrf_token = '{{ csrf_token }}'
+				codes = $(".account-boxes:checked");
+				codes_arr = []
+				codes.each(function(e) {
+					codes_arr.push($(codes[e]).val());
+				})
+				$.ajax({
+					type: "POST",
+					url: "{% url 'accounting' %}",
+					data: {
+						csrfmiddlewaretoken: "{{ csrf_token }}",
+						codes: codes_arr,
+						trigger: "print_selected_date",
+						start_date: $("#from_selected_date").val(),
+						end_date: $("#selected_date").val(),
+
+					}
+				})
+			}
+		})
+
+	})
+</script>
+<form method="POST">
+	{% csrf_token %}
+<h3 class="text-center text-muted mt-3 mb-3">Account Titles</h3>
+<div class="container" style="height: 400px; width: 500px; overflow: auto; font-size: 13px;">
+	
+	<ul class="list-group">
+		<li class="list-group-item code-list-checkall hand-cursor">
+			<input type="checkbox" name="checkall" id="checkall"> <span class="hand-cursor" id="checkall_label">Check All</span>
+		</li>
+		{% for account in accounts %}
+		<li class="list-group-item code-list hand-cursor"><input type="checkbox" name="codes" class="account-boxes" value="{{account.id}}"> <span class="code-text hand-cursor">{{account}}</span></li>
+		{% endfor %}
+	</ul>
+</div>
+<div class="container mt-3" style="width: 500px; overflow: auto; font-size: 13px;">
+	<!-- <button class="btn btn-success" id="print_to_date">Print Accounting to Latest Date</button><br> -->
+	<div style="display: table;">
+	<div class="row">
+		<div class="col">
+			<label for="selected_date">From</label>
+			<input type="date" value="1956-01-01" id="from_selected_date" class="form-control" style="width: 220px;font-size: 13px;">
+		</div>
+		<div class="col">
+			<label for="selected_date">To</label>
+			<input type="date" id="selected_date" class="form-control" style="width: 220px;font-size: 13px;">
+		</div>
+	</div>
+	<button class="btn btn-warning form-control" id="print_until">Print Accounting to Selected Date</button>
+
+	</div>
+
+</div>
+</form>
+{% endblock content %}

@@ -1,0 +1,13 @@
+<tbody id="confirmed_transfer_body">
+	{% for obj in objects %}
+	<tr>
+		<input type="hidden" value = "{{ obj.id }}" name="obj_id">
+		<input type="hidden" value = "{{ obj.qty }}" name="obj_qty">
+		<input type="hidden" value="{{obj.status}}" name="obj_status">
+		<td class="confimed_qty">{{ obj.qty }}</td>
+		<td class="confirmed_desc">{{ obj.desc }}</td>
+		<td class="confirmed_status">{{ obj.status }}</td>
+		<td class="confirmed_property">{{ obj.property_no }}</td>
+	</tr>
+	{% endfor %}
+</tbody>

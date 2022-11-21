@@ -1,0 +1,9 @@
+{% extends "newapp/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<form method="POST">
+	{% csrf_token %}
+	{{form|crispy}}
+	<button class="btn btn-success">Submit</button>
+</form>
+{% endblock content %}

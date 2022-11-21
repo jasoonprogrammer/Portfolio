@@ -1,0 +1,87 @@
+{% extends "newapp/base.html" %}
+{% load my_tags %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+	#encoding_table th {
+		background-color: #ffffff;
+		padding-right: 0px;
+	}
+
+	input[type="date"]:before {
+    content: attr(placeholder) !important;
+    color: #aaa;
+    margin-right: 0.5em;
+	  }
+	  input[type="date"]:focus:before,
+	  input[type="date"]:valid:before {
+	    content: "";
+	  }
+
+	
+</style>
+<form method="POST">
+
+<div class="container" style="width: 700px;">
+	<div class="table">
+		<div class="row">
+			<div class="col">
+				<input type="text" placeholder = "PO No. (xxxx-xxx-xx)" class="form-control">
+			</div>
+			<div class="col">
+				<input class="dte" type="date" placeholder = "Po Date" class="form-control">
+			</div>
+		</div>
+		<div class="row mt-2">
+			<div class="col">
+				<input type="text" placeholder = "Supplier" class="form-control">
+			</div>
+		</div>
+		<div class="row mt-2">
+			<div class="col">
+				<input type="text" placeholder = "Supplier Contact" class="form-control">
+			</div>
+		</div>
+		<div class="row mt-2">
+			<div class="col">
+				<select class="form-control" name="aa" id="aa" placeholder = "Fund Source">
+					<option>Fund Source</option>
+					<option value="1">FS 1</option>
+				</select>
+			</div>
+			<div class="col">
+				<select class="form-control" name="aa" id="aa" placeholder = "Fund Source">
+					<option>Mode of Procurement</option>
+					<option value="1">MOP 1</option>
+				</select>
+			</div>
+			<div class="col">
+				<input type="number" placeholder = "Amounts" class="form-control">
+			</div>
+		</div>
+		<div class="row mt-2">
+			<div class="col">
+				<input type="date" class="form-control" placeholder = "Received by supplier">
+			</div>
+			<div class="col">
+				<input type="number" class="form-control" placeholder = "Term of Delivery (Days)">
+			</div>
+			<div class="col">
+				<input type="date" class="form-control" placeholder = "Date to Deliver">
+			</div>
+			
+
+		</div>
+
+	</div>
+	<!-- {% csrf_token %}
+	<table id="encoding_table">
+	{{ encoding_po|crispy }}
+	</table>
+
+	<button>Submit</button> -->
+</div>
+</form>
+<a class="btn btn-success" href="{% url 'inspection_encoding' %}">Next</a>
+
+{% endblock content %}

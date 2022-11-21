@@ -1,0 +1,111 @@
+{% load my_tags %}
+<table class="table table-bordered text-center" id="myTable" style="table-layout: fixed;">
+	<thead>
+		<tr>
+			<th></th>
+			<th nowrap style="width: 150px;">PO No.</th>
+			<th nowrap style="width: 180px;">Recorded</th>
+			<th nowrap style="width: 250px">Article</th>
+			<th nowrap style="width: 300px;">Description</th>
+			<th nowrap style="width: 230px;">Property Number</th>
+			<th style="width: 120px;">Unit of Measure</th>
+			<th nowrap style="width: 200px;">Unit Value</th>
+			<th style="width: 100px; word-wrap: break-word;">Balance/ Card/Qty</th>
+			<th style="width: 100px; word-wrap: break-word;">Onhand/Count /Qty</th>
+			<th style="width: 100px; word-wrap: break-word;">Shortage/Quantity</th>
+			<th nowrap style="width: 200px; word-wrap: break-word;" class="text-center">Overage Value</th>
+			<th nowrap style="width: 200px;">Remarks</th>
+			<th nowrap style="width: 250px;">Supplier</th>
+			<th nowrap style="width: 250px;">End User's Designation</th>
+			<th nowrap style="width: 150px;">Property Tags</th>
+			<th nowrap style="width: 250px;">Purpose</th>
+			<th nowrap style="width: 180px;">Returned (WMR)</th>
+			<th nowrap style="width: 250px;">Transferred From</th>
+			<th nowrap style="width: 150px;">Unit Count</th>
+			<th nowrap style="width: 160px;">Date Transferred</th>
+			<th nowrap style="width: 180px;">Equipment Status</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td colspan="22" style="text-align: left"><input type="checkbox" id="checkall"> Checkall</td>
+		</tr>
+		{% for obj in checked %}
+		<tr class="check_row" style="cursor: pointer">
+			<td>
+				<input type="checkbox" name = "checked" value="{{obj.id}}" checked class="checkbox_row">
+			</td>
+			<td>{{ obj.item.inspection.po.po_no }}</td>
+			<td>{{ obj.date }}</td>
+			<td>{{ obj.item.article.name }}</td>
+			<td>{{ obj.item.desc }}</td>
+			<td>{{ obj.property_no }}</td>
+			<td>{{ obj.item.unit.name }}</td>
+			<td>{{ obj.item.cost|currency }}</td>
+			<td>{{ obj.balance }}</td>
+			<td>{{ obj.onhand }}</td>
+			<td>{{ obj.shortage }}</td>
+			<td class="text-right">{{ obj.overage|currency }}</td>
+			<td>{{ obj.remarks.name }}</td>
+			<td>{{ obj.item.inspection.po.supplier.name }}</td>
+			<td>{{ obj.designation|blank }}</td>
+			<td><a target = "_blank" href="{% url 'sticker' obj.id %}">Property Tag</a></td>
+			<td>{{ obj.item.inspection.purpose|blank }}</td>
+			<td>{{ obj.wmr|blank }}</td>
+			<td>{{ obj.from_par.item_user|blank }}</td>
+			<td>{{ obj.from_par.item_user.count|blank }}</td>
+			<td>{{ obj.from_par.item_user.date|blank }}</td>
+			<td>{{ obj.equipment_status|blank }}</td>
+
+		</tr>
+		{% endfor %}
+		{% for obj in objs %}
+		<tr class="check_row" style="cursor: pointer">
+			<td>
+				<input type="checkbox" name = "checked" value="{{obj.id}}" class="checkbox_row">
+			</td>
+			<td>{{ obj.item.inspection.po.po_no }}</td>
+			<td>{{ obj.date }}</td>
+			<td>{{ obj.item.article.name }}</td>
+			<td>{{ obj.item.desc }}</td>
+			<td>{{ obj.property_no }}</td>
+			<td>{{ obj.item.unit.name }}</td>
+			<td>{{ obj.item.cost|currency }}</td>
+			<td>{{ obj.balance }}</td>
+			<td>{{ obj.onhand }}</td>
+			<td>{{ obj.shortage }}</td>
+			<td class="text-right">{{ obj.overage|currency }}</td>
+			<td>{{ obj.remarks.name }}</td>
+			<td>{{ obj.item.inspection.po.supplier.name }}</td>
+			<td>{{ obj.designation|blank }}</td>
+			<td><a target = "_blank" href="{% url 'sticker' obj.id %}">Property Tag</a></td>
+			<td>{{ obj.item.inspection.purpose|blank }}</td>
+			<td>{{ obj.wmr|blank }}</td>
+			<td>{{ obj.from_par.item_user|blank }}</td>
+			<td>{{ obj.from_par.item_user.count|blank }}</td>
+			<td>{{ obj.from_par.item_user.date|blank }}</td>
+			<td>{{ obj.equipment_status|blank }}</td>
+
+		</tr>
+		{% endfor %}
+
+		<script>
+			$(".check_row").children().on('click', function(e) {
+				if ($(this).siblings().children("input").prop("checked")) {
+					$(this).siblings().children("input").prop("checked", false);
+				} else {
+					$(this).siblings().children("input").prop("checked", true)
+				}
+				
+			})
+
+			$("#checkall").on("click", function(e) {
+				if ($(this).is(":checked")) {
+					$(".checkbox_row").prop("checked", true);
+				} else {
+					$(".checkbox_row").prop("checked", false);
+				}
+			})
+		</script>
+	</tbody>
+</table>

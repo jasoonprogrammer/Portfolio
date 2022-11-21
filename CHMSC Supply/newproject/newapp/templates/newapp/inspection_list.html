@@ -1,0 +1,42 @@
+{% extends "newapp/base.html" %}
+{% load my_tags %}
+{% block content %}
+
+<div class="container">
+	<h2 class = "text-center card-text mb-3 mt-3">Inspection List</h2>
+	<div class="container tableFixedHead" style="overflow-y: auto; height: 400px;">
+		<table class="table table-hover table-bordered">
+			<thead>
+				<tr>
+					<td class="text-center" style = "width: 150px;">Inspection No.</td>
+					<td class="text-center" style = "width: 150px;">Date Received</td>
+					<td class="text-center">Supplier</td>
+					<td class="text-center" style="width: 120px;">Total Quantity</td>
+					<td class="text-center" style = "width: 100px;">Status</td>
+					<td class="text-center" style="width: 120px">Total Amount</td>
+					<td class="text-center" style= "width: 120px;">Report</td>
+					<!-- <td>Delete</td> -->
+				</tr>
+			</thead>
+			<tbody>
+				{% for obj in objects %}
+				<tr>
+					<td class="text-center"><a href="#">{{ obj.ins_no }}</a></td>
+					<td class="text-center">{{ obj.date_received }}</td>
+					<td class="text-center">{{ obj.po.supplier.name }}</td>
+					<td class="text-center">{{ obj|total_qty }}</td>
+					<td class="text-center">{{ obj.receive_status.name }}</td>
+					<td class="text-right">{{ obj|total_amount|currency }}</td>
+					<td class="text-center"><a href = "{% url 'print-ins' obj.id%}" target = "_blank" class="btn btn-primary mt-0 mb-0 pb-0 pt-0">Print</a></td>
+					<!-- <td class="text-center">
+						{% if obj.with_acc_codes %}
+						<a href="#" class="delete-row btn btn-danger mb-0 mt-0 pt-0 pb-0 fa fa-trash" id = "{{obj.id}}"></a>
+						{% endif %}
+					</td> -->
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% endblock content %}

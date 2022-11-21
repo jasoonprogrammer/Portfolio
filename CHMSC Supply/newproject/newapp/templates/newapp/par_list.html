@@ -1,0 +1,46 @@
+{% extends "newapp/base.html" %}
+{% block content %}
+<script>
+	$(document).ready(function() {
+		$(".account_code_check").on("click", function(e) {
+			$(e.target).children("input:checkbox").prop("checked", true);
+		})
+		$(".print").on("click", function(e) {
+			par_id = $(e.target).parent().siblings("input:hidden").val();
+			$.ajax({
+				type: "GET",
+				dataType: "html",
+				data: {
+					par_id: par_id
+				},
+				url: "{% url 'print-par' %}",
+				success: function(data) {
+
+				}
+			})
+		})
+	})
+</script>
+<h1 class="text-center">PAR List</h1>
+<table class="table table-stripped table-bordered" style="width: 500px; margin-left: auto; margin-right: auto;">
+	<thead>
+		<tr>
+			<td class="text-center" style="width: 160px;">Date</td>
+			<td class="text-center" style="width: 180px;">PAR No.</td>
+			<td class="text-center" style="width: 180px;">User</td>
+			<td></td>
+		</tr>
+	</thead>
+	<tbody>
+		{% for par in pars %}
+		<tr>
+			<input type="hidden" value="{{par.id}}">
+			<td class="text-center">{{par.date_recorded|date:"M d, Y"}}</td>
+			<td class="text-center">{{par.par_no}}</td>
+			<td class="text-center">{{par.item_user}}</td>
+			<td><button class="btn btn-primary print" style="margin: 0; padding: 0 8px; cursor: pointer;">Print</button></td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock content %}

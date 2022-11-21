@@ -1,0 +1,140 @@
+{% extends 'newapp/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+
+   .container{
+  background-color: lightgoldenrodyellow;
+  width: 50%;
+  margin-top: 30px;
+  border-radius: 10px;
+  
+}  
+
+form{
+  box-shadow: 0px 0px 8px 5px rgba(0, 0, 0, .4);
+  background-color: lightgoldenrodyellow;
+  width: 100%;
+  margin-top: 30px;
+  border-radius: 10px;
+  
+
+}
+
+.text-center{
+  font-family:georgia,garamond,serif;font-size:40px;font-style:italic;padding-top: 30px;
+}
+label{
+  font-family:georgia,garamond,serif;font-size:1rem;font-style:italic;
+  font-weight: 1000;
+  margin-left: 30px;
+}
+.form-control{
+  width: 80%;
+  margin-left: 30px;
+}
+.form-text{
+  margin-left: 30px;
+}
+
+
+
+</style>
+<script>
+
+	$(document).ready(function() {
+		$("#id_po_no").on("input", function(e) {
+			$.ajax({
+				type: "GET",
+				url: "{% url 'po_monitoring' %}",
+				data: {po_no: $("#id_po_no").val()},
+				success: function(data) {
+					if (data['status'] == undefined) {
+						$("#id_date_received_from_bac").val(data['date_received_from_bac']);
+						$("#id_fund_source").val(data['fund_source']);
+						$("#id_mode_of_procurement").val(data['mode_of_procurement']);
+						$("#id_name").val(data['supplier_name']);
+						$("#id_contact").val(data['supplier_contact']);
+						$("#id_requesting_end_user_name").val(data['requesting_end_user_name']);
+						$("#id_remarks").val(data['remarks']);
+						$("#id_term_of_delivery").val(data['term_of_delivery']);
+						$("#id_date_received_by_supplier").val(data['date_received_by_supplier']);
+						$("#id_amounts").val(data['amounts']);
+						$("#id_date_to_delivery").val()
+					} 
+				},
+
+			})
+		})
+
+		$("#id_date_received_by_supplier").on("input", function(e) {
+			if($("#id_term_of_delivery").val() != "") {
+				d = new Date($("#id_date_received_by_supplier").val());
+				d = d.addDays(parseInt($("#id_term_of_delivery").val()));
+				m = d.getMonth() + 1
+				m = m + ''
+				m = m.padStart(2, '0')
+				x = d.getDate()
+				x = x + ''
+				x = x.padStart(2, "0")
+				newd = "" + d.getFullYear() + "-" + m + "-" + x;
+				$("#id_date_to_deliver").val(newd);
+			} else {
+				$("#id_date_to_deliver").val("");
+			}
+		})
+
+		$("#id_term_of_delivery").on("input", function(e) {
+			if($("#id_term_of_delivery").val() != "") {
+				d = new Date($("#id_date_received_by_supplier").val());
+				d = d.addDays(parseInt($("#id_term_of_delivery").val()));
+				m = d.getMonth() + 1
+				m = m + ''
+				m = m.padStart(2, '0')
+				x = d.getDate()
+				console.log(x)
+				x = x + ''
+				x = x.padStart(2, "0")
+				newd = "" + d.getFullYear() + "-" + m + "-" + x;
+				$("#id_date_to_deliver").val(newd);
+			} else {
+				$("#id_date_to_deliver").val("");
+			}
+		})
+
+		$("#id_name").on("input", function(e) {
+			$.ajax({
+				type: "GET",
+				url: '{% url "get_contact" %}',
+				data: {supplier_name: $("#id_name").val()},
+				dataType: "html",
+				success: function(data) {
+					if (data != "") {
+						$("#id_contact").val(data);
+					} else {
+						$("#id_contact").val("");
+					}
+				}
+			})
+		})
+
+
+
+
+	})
+
+
+
+
+</script>
+<br><div class="container mt-2 mb-5" style="width: 800px;">
+	<form method = "POST">
+		{% csrf_token %}
+		<legend class="text-center"><h1>Purchase Order Monitoring</h1></legend>
+		{{form|crispy}}
+		<button class="btn btn-success form-control">Submit</button>
+	</form>
+</div>
+
+
+{% endblock content %}

@@ -1,0 +1,58 @@
+<tr>
+	<input type="hidden" name="acc_code">
+	<!-- <input type="hidden" name="series" data-custom = "series"> -->
+	<td>
+		<input type="hidden" name="po_id" value="{{po.id}}">
+		<input type="text" class="form-control" name='po_no' value="{{po.po_no}}" readonly>
+	</td>
+	<td>
+		<select name="date" class="form-control">
+			{% for date in dates %}
+				<option value="{{date}}">{{date}}</option>
+			{% endfor %}
+		</select>
+	</td>
+	
+	<td><input type="text" class="form-control" disabled name='article'></td>
+	<td>
+		<select name="item" class="form-control" oninput="unlock(event);">
+			<option value="">-----</option>
+			{% for item in items %}
+			{% if item.inspection.with_acc_codes %}
+				<option value="{{item.id}}">{{item}}</option>
+			{% endif %}
+				
+			{% endfor %}
+			
+		</select>
+	</td>
+	<!-- <td><input type="text" class="form-control" disabled name='property_no'></td> -->
+	<td><input type="text" class="form-control" disabled name = "unit"></td>
+	<td><input type="number" class="form-control text-right" disabled name = 'cost'></td>
+	<td><input type="number" class="form-control" data-custom = "balance" disabled name="balance" oninput="copyValue(event);" required></td>
+	<td><input type="number" class="form-control" disabled data-custom = "onhand" name="onhand" oninput="copyValue(event);" required></td>
+	<td><input type="number" class="form-control" disabled name="shortage"></td>
+	<td><input type="number" class="form-control" disabled name ="overage"></td>
+	<td><input type="text" class="form-control" disabled name="remarks" required></td>
+	<td>
+		<select name="campus" id="campus" class="form-control">
+			{% for campus in campuses %}
+			{% if campus == default_campus %}
+			<option value="{{campus.id}}" selected>{{campus}}</option>
+			% else %
+			<option value="{{campus.id}}">{{campus}}</option>
+			{% endif %}
+			{% endfor %}
+
+		</select>
+	</td>
+	<td><input type="text" class="form-control" disabled name="supplier"></td>
+	<td><input type="text" class="form-control" disabled name="designation" required></td>
+	<td><button class="btn btn-primary mt-0 mb-0" disabled>Auto Generated</button></td>
+	<td><input type="text" class="form-control" disabled name="purpose"></td>
+	<td><input type="text" class="form-control" disabled name="wmr"></td>
+	<td><input type="text" class="form-control" disabled name="new_user"></td>
+	<td><input type="number" class="form-control" disabled name="unit_count"></td>
+	<td><input type="date" class="form-control" disabled name="date_transferred"></td>
+	<td><input type="text" class="form-control" disabled name = "equipment_status"></td>
+</tr>

@@ -1,0 +1,289 @@
+{% extends "newapp/base.html" %}
+{% load my_tags %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+	.hand-cursor {
+		cursor: pointer;
+
+	}
+
+
+
+	
+</style>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(".del-po").on("click", function(e) {
+			let conf1 = confirm("Are you sure you want to delete this PO?");
+
+			if (conf1 == true) {
+				let conf2 = confirm("All data related to this PO Number will also be deleted. Are you sure?");
+				if (conf2 == true) {
+					let po_id = $(e.target).data("id");
+
+					$.ajax({
+						type: "GET",
+						dataType: 'json',
+						data: {
+							po_id: po_id
+						},
+						url: "{% url 'delete-po' %}",
+						success: function(data) {
+							alert("Successfully Deleted a PO Record");
+						$(e.target).parent().parent().remove();
+
+						}
+					})
+
+				}
+
+
+			}
+		})
+
+		$("#filter_button").on("click", function(e) {
+			$("#filterModal").modal("show");
+		})
+
+		$("#print_par").on("click", function(e) {
+			if ($("#print_par").hasClass("active")) {
+				$("#po_table").removeClass("hand-cursor");
+				$("#print_par").removeClass("active");
+				$("tbody tr").attr("data-toggle", "")
+				$("tbody tr").attr("data-target", "")
+			} else {
+				$("#po_table").addClass("hand-cursor");
+				$("#print_par").addClass("active");
+				$(".rowss").attr("data-toggle", "modal")
+				$(".rowss").attr("data-target", "#exampleModal")
+			}
+		})
+
+		$("#print_ics").on("click", function(e) {
+			if ($("#print_ics").hasClass("active")) {
+				$("#po_table").removeClass("hand-cursor");
+				$("#print_par").removeClass("active");
+				$("tbody tr").attr("data-toggle", "");
+				$("tbody tr").attr("data-target", "");
+				$.ajax({
+					type: "GET",
+					url: "{% url 'print-ics' %}",
+					data: {
+						po_id: po_id
+					},
+
+					success: function(data) {
+						
+					}
+				})
+			} else {
+				$("#po_table").addClass("hand-cursor");
+				$("#print_ics").addClass("active");
+				$("#print_par").removeClass("active");
+				$(".rowss").addClass("ics");
+				
+			}
+		})
+
+
+
+		$(".rowss").on("click", function(e) {
+			if ($(this).hasClass("ics")) {
+				po_id = $(this).children("input").val();
+				$.ajax({
+					type: "GET",
+					url: "{% url 'print-ics' %}",
+					data: {
+						po_id: po_id
+					},
+
+					success: function(data) {
+						
+					}
+				})
+			}
+
+			else {
+
+				$("#po_no").text($(this).children(".po_no").text());
+				po_id = $(this).children("input").val();
+				$.ajax({
+					type: "GET",
+					url: "{% url 'po_list_option' %}",
+					data: {
+						po_id: po_id
+					},
+
+					success: function(data) {
+						$("#select_user").replaceWith(data);
+					}
+				})
+			}
+		})
+
+		$("#print_par2").on('click', function(e) {
+			po_id = $("#select_user").data("po");
+
+			if ($("#select_user").val() != "") {
+				$.ajax({
+					type: "GET",
+					url: '{% url "print-par" %}',
+					data: {
+						po_pk: po_id,
+						eu_pk: $("#select_user").val()
+					},
+					success: function(data) {
+
+					}
+				})
+			}
+		})
+	})
+</script>
+<div class="container mt-2">
+	<h1 class="card-text text-center">Purchase Order List</h1>
+	<button class="btn btn-primary" id="filter_button"><span class="fa fa-filter"></span> Filter</button>
+	<a href="{% url 'po-list' %}" class="btn btn-primary">Clear Filter</a>
+	<!-- <button class="btn btn-warning" id="print_par"><span class="fa fa-print"> Select Print PAR</span></button>
+	<button class="btn btn-warning" id="print_ics"><span class="fa fa-print"> Select Print ICS</span></button> -->
+
+</div>
+<div class="tableFixHead container mt-3" style="overflow-x: auto; overflow-y:auto; height: 500px; box-shadow: 0.2em 0.2em 0.7em black, inset 0 0 0.7em red;">
+	<table class="table table-bordered table-hover" id="po_table">
+		<thead>
+			<th nowrap>PO No.</th>
+			<th nowrap>Date Received from BAC</th>
+			<th nowrap>Date Received by Supplier</th>
+			<th nowrap>Term of Delivery (Days)</th>
+			<th nowrap>Delivery Date</th>
+			<th nowrap>Supplier</th>
+			<th nowrap>Supplier Contact</th>
+			<th nowrap>Fund Source</th>
+			<th nowrap>Mode of Procurement</th>
+			<th nowrap>Amounts</th>
+			<th nowrap>Requesting User</th>
+			<th nowrap>Del</th>
+		</thead>
+		<tbody>
+			{% if filtered %}
+			{% if results.count < 1 %}
+				<td colspan="11" class="card-text text-center">No Results</td>
+			{% else %}
+			{% for po in results %}
+			<tr class="rowss">
+				<input type="hidden" value = "{{ po.id }}">
+				<td nowrap class="po_no">{{po.po_no}}</td>
+				<td nowrap>{{po.date_received_from_bac}}</td>
+				<td nowrap>{{po.date_received_by_supplier}}</td>
+				<td nowrap>{{po.term_of_delivery}}</td>
+				<td nowrap>{{po.date_to_deliver}}</td>
+				<td nowrap>{{po.supplier_name}}</td>
+				<td nowrap>{{po.supplier.contact}}</td>
+				<td nowrap>{{po.fund_source}}</td>
+				<td nowrap>{{po.mode_of_procurement}}</td>
+				<td class="text-right" nowrap>{{po.amounts}}</td>
+				<td nowrap>{{po.requesting_end_user.name}}</td>
+				<td class="text-center del-po"><a href="#" data-id = "{{po.id}}">&#10006</a></td>
+			</tr>
+			{% endfor %}
+			{% endif %}
+
+			{% else %}
+			{% for i in range %}
+			{% with po=i|get_po:cyear %}
+			{% if po is None %}
+			<tr>
+				<td nowrap>xxxx-{{i|zfill}}-xx</td>
+				<td nowrap></td>
+				<td nowrap></td>
+				<td nowrap></td>
+				<td nowrap></td>
+				<td nowrap></td>
+				<td nowrap></td>
+				<td nowrap></td>
+				<td nowrap></td>
+				<td nowrap></td>
+				<td nowrap></td>
+				<td nowrap></td>
+			</tr>
+			{% else %}
+			<tr class="rowss">
+				<input type="hidden" value = "{{ po.id }}">
+				<td nowrap class="po_no">{{po.po_no}}</td>
+				<td nowrap>{{po.date_received_from_bac}}</td>
+				<td nowrap>{{po.date_received_by_supplier}}</td>
+				<td nowrap>{{po.term_of_delivery}}</td>
+				<td nowrap>{{po.date_to_deliver}}</td>
+				<td nowrap>{{po.supplier_name}}</td>
+				<td nowrap>{{po.supplier.contact}}</td>
+				<td nowrap>{{po.fund_source}}</td>
+				<td nowrap>{{po.mode_of_procurement}}</td>
+				<td class="text-right" nowrap>{{po.amounts}}</td>
+				<td nowrap>{{po.requesting_end_user.name}}</td>
+				<td class="text-center del-po"><a href="#" data-id = "{{po.id}}">&#10006</a></td>
+			</tr>
+			{% endif %}
+			{% endwith %}
+			{% endfor %}
+
+			{% endif %}
+			
+		</tbody>
+	</table>
+</div>
+
+
+<div class="modal" tabindex="-1" role="dialog" id="filterModal" data-row = ''>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Filter Purchase Order</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container" style="height: 675px; overflow-y: scroll">
+        	<form method="POST">
+        		{% csrf_token %}
+        		{{form|crispy}}
+        		
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      	<button class="btn btn-primary">Filter</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Select User</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      	<b>PO No. <span id="po_no"></span></b>
+      	<br><br>
+      	<select class="form-control text-center" name="select_user" id="select_user" data-po="">
+      		<option value="">----------</option>
+      	</select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-warning" id="print_par2"><span class="fa fa-print"></span> Print PAR</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

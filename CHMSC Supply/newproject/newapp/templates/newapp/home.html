@@ -1,0 +1,24 @@
+{% extends "newapp/base.html" %}
+{% load my_tags %}
+{% block content %}
+
+{% if account_titles.count > 0%}
+<h4 class="text-muted">Account Codes without Titles</h4>
+<h4>Please enter titles</h4>
+
+<form method="POST">
+	{% csrf_token %}
+	{{ formset.management_form }}
+	<table>
+	{% for form in formset %}
+	{{ form.as_table }}
+	{% endfor %}
+	</table>
+
+	<button class="btn btn-success">Submit</button>
+</form>
+
+
+{% else %}
+{% endif %}
+{% endblock content %}

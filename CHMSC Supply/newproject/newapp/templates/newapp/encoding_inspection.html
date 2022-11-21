@@ -1,0 +1,24 @@
+{% extends "newapp/base.html" %}
+{% load my_tags %}
+{% block content %}
+<style>
+	#encoding_table th {
+		background-color: forestgreen;
+		padding-right: 80%;
+	}
+
+	
+</style>
+<form method="POST">
+
+<div class="container">
+	{% csrf_token %}
+	<table id="encoding_table">
+	{{ encoding_inspection.as_table }}
+	{{ receipt_form.as_table }}
+	</table>
+
+	<button>Submit</button>
+</div>
+</form>
+{% endblock content %}

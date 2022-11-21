@@ -1,0 +1,93 @@
+<div class="d-none">
+<!-- 	{{ formset.management_form }} -->
+</div>
+<table><!-- 
+{% for form in formset %}
+{{ form.as_table }}
+{% endfor %} 
+{% for i in item_count %} -->
+<tr>
+	<th>
+		<label for="item-no-{{forloop.counter}}">No.</label>
+	</th>
+	<td>
+		<input type="number" id="item-no-{{forloop.counter}}" name="item-no">
+	</td>
+</tr>
+<tr>
+	<th>
+		<label for="article-{{forloop.counter}}">Article</label>
+	</th>
+	<td>
+		<input type="text" id="article-{{forloop.counter}}" name="article">
+	</td>
+</tr>
+<tr>
+	<th>
+		<label for="desc-{{forloop.counter}}">Description</label>
+	</th>
+	<td>
+		<input type="text" id="desc{{forloop.counter}}" name="desc">
+	</td>
+</tr>
+<tr>
+	<th>
+		<label for="unit-{{forloop.counter}}">Unit</label>
+	</th>
+	<td>
+		<select name="unit" id="unit-{{forloop.counter}}">
+			<option>-------</option>
+			{% for unit in units %}
+			<option value="{{unit.id}}">{{unit}}</option>
+			{% endfor %}
+		</select>
+	</td>
+</tr>
+<tr>
+	<th>
+		<label for="quantity-{{forloop.counter}}">Quantity</label>
+	</th>
+	<td>
+		<input type="number" id="quantity-{{forloop.counter}}" name="qty">
+	</td>
+</tr>
+<tr>
+	<th>
+		<label for="cost-{{forloop.counter}}">Cost</label>
+	</th>
+	<td>
+		<input type="number" id="cost-{{forloop.counter}}" name="cost">
+	</td>
+</tr>
+<tr>
+	<th>
+		<label for="inspection-{{forloop.counter}}">Inspection</label>
+	</th>
+	<td>
+		<input type="text" id="inspection-{{forloop.counter}}" name="inspection">
+	</td>
+</tr>
+<tr>
+	<th>
+		<label for="account-code-{{forloop.counter}}">Account Code</label>
+	</th>
+	<td>
+		<input type="text" id="account-code-{{forloop.counter}}" name="account-code">
+	</td>
+</tr>
+<tr>
+	<th>
+		<label for="classification-{{forloop.counter}}">Classification</label>
+	</th>
+	<td>
+		<select name="classification" id="classification-{{forloop.counter}}">
+			<option>--------</option>
+			{% for c in classifications %}
+			<option value="{{c.id}}">{{c.name}}</option>
+			{% endfor %}
+		</select>
+	</td>
+</tr>
+
+{% endfor %}
+</table>

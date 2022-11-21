@@ -1,0 +1,45 @@
+{% extends "newapp/base.html" %}
+{% block content %}
+
+<h1 class="text-center mb-2">Set Account Codes</h1>
+<div class="container mt-3">
+<table class="table table-bordered table-hover" style="table-layout: fixed; width: 750px; margin-left: auto; margin-right: auto;">
+	<thead>
+		<tr>
+			<th class="text-center" style="width: 80px;">PO No.</th>
+			<th class="text-center" style="width: 80px;">Inspection No.</th>
+			<th class="text-center" style="width: 80px;">Inspection Date</th>
+			<th class="text-center" style="width: 80px;">No. of Items</th>
+			<th class="text-center" style="width: 80px;">Account Codes</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% if ins_list.count < 1%}
+		<tr>
+			<td colspan='5' class="card-text text-center bold">THERE ARE NO ITEMS FOUND</td>
+		</tr>
+		{% else %}
+		{% for x in ins_list%}
+		<tr>
+			<td>{{x.po}}</td>
+			<td>
+				{% if x.with_acc_codes %}
+				{{x}}
+				{% else %}
+				<a href="{% url 'acc-codes-ins' x.id %}">{{x}}</a>
+				{% endif %}
+			</td>
+			<td>{{x.date}}</td>
+			<td class="text-right">{{x.item_set.count}}</td>
+			{% if x.with_acc_codes %}
+			<td class="text-center"><a href="#"><span class="fa fa-check"></span></a></td>
+			{% else %}
+			<td class="text-center"><span class="fa fa-times"></span></td>
+			{% endif %}
+		</tr>
+		{% endfor %}
+		{% endif %}
+	</tbody>
+</table>
+</div>
+{% endblock content %}

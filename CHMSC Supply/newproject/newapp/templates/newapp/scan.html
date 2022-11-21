@@ -1,0 +1,12 @@
+{% extends 'newapp/base.html' %}
+{% block content %}
+<div class="container mt-3">
+	<form method = "POST" enctype="multipart/form-data">
+		{% csrf_token %}
+		<h3>Upload a QR</h3>
+		{{form}}
+		<br><br>
+		<button class="btn btn-default">Upload</button>
+	</form>
+</div>
+{% endblock content %}

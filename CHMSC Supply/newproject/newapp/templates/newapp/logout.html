@@ -1,0 +1,15 @@
+{% extends 'newapp/base.html' %}
+{% block content %}
+<div class="center">
+	<center><h2>You have been successfully logged out</h2></center>
+	<center><a href="{% url 'login' %}"><small>Relogin</small></a></center>
+</div>
+
+<style>
+	.center {
+  text-align: center;
+  font-size: 85%;
+  padding-top: 20%;
+}
+</style>
+{% endblock content %}

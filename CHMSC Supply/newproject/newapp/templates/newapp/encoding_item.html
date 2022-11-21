@@ -1,0 +1,63 @@
+{% extends "newapp/base.html" %}
+{% load my_tags %}
+{% block content %}
+<style>
+	#encoding_table th {
+		background-color: #ffffff;
+		padding-right: 0px;
+	}
+
+	
+</style>
+<script>
+	$(document).ready(function() {
+		$("#item_count").on("input", function(e) {
+			count = $(this).val();
+			$.ajax({
+				type: "GET",
+				dataType: "html",
+				data: {
+					count: count,
+				},
+				url: "{% url 'item_encoding_formset' %}",
+				success: function(data) {
+					$("#last_row").nextAll().remove();
+					body = $(data).find("tbody tr");
+					hiddens = $(data).find("input[type='hidden']");
+					$("#last_row").after(body);
+					$("#encoding_table").before(hiddens)
+					$("tr:nth-child(9n+2)").before("<br><br>")
+				}
+			})
+		})
+
+		
+	})
+
+	// This is where I ended
+</script>
+<form method="POST">
+
+<div class="container">
+	{% csrf_token %}
+	<table id="encoding_table">
+		<tr id="last_row">
+			<th><label for="id_item_count">Item Count:</label></th>
+			<td>
+				<input type="number" name="item_count" id="item_count">
+			</td>
+			{% if item_formset %}
+			{{ item_formset.management_form }}
+			{% for form in formset %}
+			{{ form.as_table }}
+			{% endfor %}
+			{% endif %}
+		</tr>
+
+
+	</table>
+
+	<button>Submit</button>
+</div>
+</form>
+{% endblock content %}
